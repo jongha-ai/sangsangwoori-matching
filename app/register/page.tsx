@@ -23,8 +23,17 @@ const LABEL_CLASS = "block text-xl font-semibold text-gray-800";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   async function handleSubmit(formData: FormData) {
+    const name = (formData.get("name") as string).trim();
+    if (!name) {
+      setNameError("이름을 입력해 주세요.");
+      return;
+    }
+    setNameError(null);
+    setError(null);
+
     try {
       await registerSenior(formData);
     } catch (e: unknown) {
@@ -50,14 +59,21 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form action={handleSubmit} className="space-y-6">
+        <form action={handleSubmit} noValidate className="space-y-6">
           <div className="space-y-2">
             <label className={LABEL_CLASS} htmlFor="name">이름 *</label>
+            {nameError && (
+              <div
+                role="alert"
+                className="rounded-xl border-2 border-red-300 bg-red-50 px-4 py-2 text-base text-red-600"
+              >
+                {nameError}
+              </div>
+            )}
             <input
               id="name"
               name="name"
               type="text"
-              required
               placeholder="홍길동"
               className={FIELD_CLASS}
             />

@@ -49,7 +49,7 @@ export async function registerSenior(formData: FormData) {
     }
   }
 
-  redirect("/recommendations");
+  redirect(`/recommendations?senior_id=${(senior as Senior).id}&registered=1`);
 }
 
 export async function assignMatch(formData: FormData) {

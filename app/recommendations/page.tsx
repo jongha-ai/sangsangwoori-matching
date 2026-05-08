@@ -33,11 +33,25 @@ function MatchBadges({ match }: { match: MatchWithRelations }) {
   );
 }
 
-export default async function RecommendationsPage() {
-  const { data, error } = await supabase
+export default async function RecommendationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { senior_id, registered } = await searchParams;
+  const seniorId = typeof senior_id === "string" ? senior_id : undefined;
+  const showRegistered = registered === "1";
+
+  let query = supabase
     .from("matches")
     .select("*, seniors(*), jobs(*)")
     .order("score", { ascending: false });
+
+  if (seniorId) {
+    query = query.eq("senior_id", seniorId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return (
@@ -60,10 +74,19 @@ export default async function RecommendationsPage() {
           <span className="text-gray-400 text-base">{matches.length}건</span>
         </div>
 
+        {showRegistered && (
+          <div
+            role="status"
+            className="rounded-xl border-2 border-green-400 bg-green-50 px-5 py-4 text-lg font-semibold text-green-700"
+          >
+            등록이 완료되었습니다
+          </div>
+        )}
+
         {matches.length === 0 ? (
           <div className="flex flex-col items-center justify-center bg-white rounded-2xl shadow-md p-16 text-center space-y-4">
             <p className="text-6xl">🔍</p>
-            <p className="text-2xl font-semibold text-gray-700">추천 결과가 없습니다.</p>
+            <p className="text-2xl font-semibold text-gray-700">현재 매칭되는 일자리가 없습니다</p>
             <p className="text-lg text-gray-400">
               시니어 프로필을 등록하면 자동으로 매칭됩니다.
             </p>
